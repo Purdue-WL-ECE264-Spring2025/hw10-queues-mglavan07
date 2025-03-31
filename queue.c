@@ -13,7 +13,7 @@ void enqueue(struct queue *q, struct game_state state) {
     struct list_node* current = q->data.head;
 
     // iterate through all nodes in the queue
-    while(current->next != NULL){
+    while(current != NULL){
 
         // deserialize the node into a game state
         struct game_state curr = deserialize(current->value);
