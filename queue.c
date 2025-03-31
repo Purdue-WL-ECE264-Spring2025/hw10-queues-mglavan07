@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdlib.h>
 
+#define TILES(num) (num & ((((uint64_t)1 << 49)-1)<<15))
 void enqueue(struct queue *q, struct game_state state) {
     
     // Serialize the game state into a 64-bit integer
@@ -15,17 +16,10 @@ void enqueue(struct queue *q, struct game_state state) {
     // iterate through all nodes in the queue
     while(current != NULL){
 
-        // deserialize the node into a game state
-        struct game_state curr = deserialize(current->value);
-
         // check all tiles
-        for(int i = 0; i < 4; i++){
-            for(int j = 0; j < 4; j++){
-                if(state.tiles[i][j] == curr.tiles[i][j]){
-                    return;
-                }
-            }
-        }
+        if(TILES(serialized_state) == TILES(current->value)){
+	  return;
+	}
 
         // increment to next node
         current = current->next;
@@ -73,18 +67,24 @@ int number_of_moves(struct game_state start) {
         // Dequeue the front state
         struct game_state current_state = dequeue(&q);
 
+        //for(int k = 0; k < 4; k++){
+	 // for(int n=0; n < 4; n++){
+	   // printf("%d - ", current_state.tiles[k][n]);
+	 // }
+	 // printf("\n");
+	//} 
+	//int f;
+	//scanf("%d",&f);	
+
         // Check if the current state matches the ideal state (goal state)
-        int matches = true;
-        for(int i = 0; i < 3; i++){
-            for(int j = 0; j < 3; j++){
-                if(current_state.tiles[i][j] == ideal_state.tiles[i][j])
-                {
-                    matches = false;
-                }
-            }
+        int matches = false;
+        if(TILES(serialize(current_state)) == TILES(serialize(ideal_state))){
+            matches = true;
         }
         if (matches == true)
         {
+            free_list(q.data);
+            //free(q);
             return current_state.num_steps;
         }
 
